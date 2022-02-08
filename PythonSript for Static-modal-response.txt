@@ -1,0 +1,73 @@
+Points = DataModel.Project.Model.RemotePoints
+folderList = Points.GetChildren[Ansys.ACT.Automation.Mechanical.TreeGroupingFolder](True)
+
+
+def addSnippet(point, code, Name = "Commands (APDL)"):
+    snippet = point.AddCommandSnippet()
+    snippet.Input = code
+    snippet.Name = Name
+
+
+def codeGen(folder, path = ""):
+    fName = folder.Name
+    text2 = "resDIM_" + fName + "(i,1,1) = _npilot\ni = i + 1"
+    
+    text1 = "size = " + folderList[0].Children.Count.ToString() + \
+            "\n*DIM,resDIM_" + fName + ",ARRAY,size,5,3" + \
+            "\ni = 1"
+    
+    text3 = "*VSCFUN,size,LAST,resDIM_" + fName + "\n" \
+            "*DIM,resArray,ARRAY,size,5,3" + "\n" \
+            "*MFUN,resArray,COPY,resDIM_" + fName + "\n" \
+            "*USE,results\n" + \
+            "*MFUN,resDIM_" + fName + ",COPY,resArray\n" + \
+            "*DEL,resArray\n" + \
+            "PARSAV,ALL,stResult_" + fName + "\n\n" + \
+            "my_x_" + fName + " = x\n" + \
+            "my_y_" + fName + " = y\n" + \
+            "my_z_" + fName + " = z\n" + \
+            "my_xy_" + fName + " = (x**2+y**2)**0.5\n" + \
+            "my_Nmax_" + fName + " = maxNode"
+    
+    text4 = "PARRES,NEW,'stResult_" + fName + "',' ','" + path + "'\n" + \
+            "*VSCFUN,size,LAST,resDIM_" + fName + "\n" \
+            "*DIM,resArray,ARRAY,size,5,3" + "\n" \
+            "*MFUN,resArray,COPY,resDIM_" + fName + "\n" + \
+            "*USE,respResults\n" + \
+            "*DEL,resArray\n\n" + \
+            "my_x_" + fName + "_st = xSt\n" + \
+            "my_y_" + fName + "_st = ySt\n" + \
+            "my_z_" + fName + "_st = zSt\n\n" + \
+            "my_x_" + fName + "_resp = xResp\n" + \
+            "my_y_" + fName + "_resp = yResp\n" + \
+            "my_z_" + fName + "_resp = zResp\n\n" + \
+            "my_x_" + fName + "_Sum = xSum\n" + \
+            "my_y_" + fName + "_Sum = ySum\n" + \
+            "my_z_" + fName + "_Sum = zSum\n\n" + \
+            "my_Nmax_" + fName + " = maxNode"
+    return (text1, text2, text3, text4)
+
+statPath = Model.Analyses[0].Solution.WorkingDir
+
+stBaseSnip = Model.Analyses[0].Solution.AddCommandSnippet()
+stBaseSnip.ImportTextFile(r"C:\PROCESSING SSD\DELETE ME\stRes")
+stBaseSnip.Name = "Base result function"
+
+stNodalLoad = Model.Analyses[0].Solution.AddCommandSnippet()
+stNodalLoad.ImportTextFile(r"C:\PROCESSING SSD\DELETE ME\NodalLoad")
+stNodalLoad.Name = "Nodal load"
+stNodalLoad.InputArgument1 = '1'
+
+respBaseSnip = Model.Analyses[2].Solution.AddCommandSnippet()
+respBaseSnip.ImportTextFile(r"C:\PROCESSING SSD\DELETE ME\respRes")
+respBaseSnip.Name = "Base result function"
+
+for folder in folderList:
+    codes = codeGen(folder, statPath)
+    addSnippet(folder.Children[0],codes[0])
+    for point in folder.Children:
+        addSnippet(point,codes[1])
+    resultFolderName = "results for " + folder.Name
+    addSnippet(Model.Analyses[0].Solution, codes[2], resultFolderName)
+    addSnippet(Model.Analyses[2].Solution, codes[3], resultFolderName)
+

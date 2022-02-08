@@ -1,0 +1,44 @@
+KEYW,PR_SGVOF,1 
+
+*CREATE,results
+
+*VSCFUN,size,LAST,resArray
+
+set,last
+*DO,j,1,size,1
+	NSEL,S, , ,resArray(j)
+	fsum
+	*GET, x, FSUM,,ITEM,FX
+	*GET, y, FSUM,,ITEM,FY
+	*GET, z, FSUM,,ITEM,FZ
+	resArray(j,2,1) = abs(x)
+	resArray(j,3,1) = abs(y)
+	resArray(j,4,1) = abs(z)
+	resArray(j,5,1) = (x**2+y**2+z**2)**0.5
+*ENDDO
+ALLSEL,all  
+
+*vscfun,Nmax,LMAX,resArray(1,5,1)
+
+maxNode = resArray(Nmax)
+
+*get,angXY,NODE,maxNode ,ANG,XY 
+*get,angYZ,NODE,maxNode ,ANG,YZ
+*get,angZX,NODE,maxNode ,ANG,ZX 
+
+LOCAL,99,0,NX(maxNode),NY(maxNode), NZ(maxNode),angXY,angYZ, angZX  
+RSYS,99
+
+NSEL,S, , ,maxNode 
+fsum,rsys
+*GET, x, FSUM,,ITEM,FX
+*GET, y, FSUM,,ITEM,FY
+*GET, z, FSUM,,ITEM,FZ
+
+ALLSEL,ALL
+*END
+  
+  
+  
+  
+  

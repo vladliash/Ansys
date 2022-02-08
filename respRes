@@ -1,0 +1,50 @@
+KEYW,PR_SGVOF,1 
+
+*CREATE,respResults
+
+*VSCFUN,size,LAST,resArray
+
+set,last
+*DO,j,1,size,1
+	NSEL,S, , ,resArray(j)
+	resArray(j,1,2) = resArray(j)
+	resArray(j,1,3) = resArray(j)
+	fsum
+	*GET, x, FSUM,,ITEM,FX
+	*GET, y, FSUM,,ITEM,FY
+	*GET, z, FSUM,,ITEM,FZ
+	resArray(j,2,2) = abs(x)
+	resArray(j,3,2) = abs(y)
+	resArray(j,4,2) = abs(z)
+	resArray(j,5,2) = (x**2+y**2+z**2)**0.5
+	resArray(j,2,3) = abs(x) + resArray(j,2,1)
+	resArray(j,3,3) = abs(y) + resArray(j,3,1)
+	resArray(j,4,3) = abs(z) + resArray(j,4,1)
+	resArray(j,5,3) = (resArray(j,2,3)**2 + resArray(j,3,3)**2 + resArray(j,4,3)**2)**0.5
+	
+*ENDDO
+ALLSEL,all  
+
+*vscfun,Nmax,LMAX,resArray(1,5,3)
+
+maxNode = resArray(Nmax)
+
+xSt = resArray(Nmax,2,1)
+ySt = resArray(Nmax,3,1)
+zSt = resArray(Nmax,4,1)
+
+
+xResp = resArray(Nmax,2,2)
+yResp = resArray(Nmax,3,2)
+zResp = resArray(Nmax,4,2)
+
+xSum = resArray(Nmax,2,3)
+ySum = resArray(Nmax,3,3)
+zSum = resArray(Nmax,4,3)
+xySum = (xSum**2 + ySum**2)**0.5
+
+NSEL,S, , ,maxNode
+NFORCE,ALL  
+ALLSEL,all
+
+*END

@@ -1,0 +1,23 @@
+Nmax2 = ARG1  
+
+*get,angXY,NODE,Nmax2,ANG,XY 
+*get,angYZ,NODE,Nmax2,ANG,YZ
+*get,angZX,NODE,Nmax2,ANG,ZX 
+
+LOCAL,99,0,NX(Nmax2),NY(Nmax2), NZ(Nmax2),angXY,angYZ, angZX  
+RSYS,99
+
+NSEL,S, , ,Nmax2
+fsum,rsys
+*GET, x, FSUM,,ITEM,FX
+*GET, y, FSUM,,ITEM,FY
+*GET, z, FSUM,,ITEM,FZ
+
+
+
+my_x = x
+my_y = y
+my_z = z
+my_xy = (x**2+y**2)**0.5
+
+ALLSEL,ALL
